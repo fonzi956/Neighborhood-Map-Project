@@ -20,6 +20,9 @@ $.ajax({
 
 //getting the venues details APIs placesId using ajax again
 for (var i = 0; i < placesId.length; i++) {
+  getdata(i);
+}
+function getdata(i){
   $.ajax({
      'async': false,
      'global': false,
@@ -90,11 +93,11 @@ function initMap() {
     var canonicalUrl = places[i].canonicalUrl;
 
     var showIn = true;
-
+    var pic = null;
     if (places[i].photos.count !== 0) {
-      var pic = places[i].bestPhoto.prefix + "width240"+places[i].bestPhoto.suffix;
+      pic = places[i].bestPhoto.prefix + "width240"+places[i].bestPhoto.suffix;
     }else {
-      var pic = 0;
+      pic = 0;
     }
 
     // Create a marker per location, and put into markers array.
@@ -114,6 +117,7 @@ function initMap() {
 
     // Create an onclick event to open the large infowindow at each marker.
     infow.push(largeInfowindow);
+
     marker.addListener('click', function() {
       InfoWindow(this, largeInfowindow);
     });
@@ -125,7 +129,7 @@ function initMap() {
     marker.addListener('mouseout', function() {
       this.setIcon(defaultIcon);
     });
-  }
+}
 
   showListings();
 
@@ -196,14 +200,12 @@ function InfoWindow(marker, infowindow) {
     // position of the streetview image, then calculate the heading, then get a
     // panorama from that and set the options
     function getStreetView(data, status) {
-      if (status == google.maps.StreetViewStatus.OK && marker.pic == 0) {
+      if (status == google.maps.StreetViewStatus.OK && marker.pic === 0) {
         var nearStreetViewLocation = data.location.latLng;
         var heading = google.maps.geometry.spherical.computeHeading(
           nearStreetViewLocation, marker.position);
 
           infowindow.setContent('<div><a target="_blank" href="' + marker.canonicalUrl +'">' + marker.title + '</a></div><div id="pano"></div>');
-          //infowindow.setContent('<div>' + marker.title + '</div>' +
-            //'<div> <img src="'+ marker.pic +'" alt=""> </div>');
           var panoramaOptions = {
             position: nearStreetViewLocation,
             pov: {
@@ -289,13 +291,7 @@ var SpacePpl = function(data) {
     this.location = ko.observable(data.location);
     this.cat = ko.observable(data.categories[0].name);
     this.showIn = ko.observable(false);
-}
-
-//Hides container for devices
-function Hide() {
-
-}
-
+};
 
 //ViewModel defines the data and behavior of your UI
 function ViewModel() {
