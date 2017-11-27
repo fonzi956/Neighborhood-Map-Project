@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="map.css">
+  </head>
+  <body>
+    <div class="container">
+      <div id="options-box">
+        <h1>Places near me</h1>
+
+        <div>
+          <!-- dropdown by category-->
+          <select data-bind="
+                  value: selectedItem,
+                  options: placesNewCat">
+          </select>
+          <!-- Shows the list of places-->
+          <ul id="cat-list" data-bind="foreach: catList">
+            <!--checks if the catList name is show as true for display -->
+            <!-- ko if: showIn() === true  -->
+            <li data-bind="text: name(), click: $parent.clickbtn"></li>
+            <!-- /ko -->
+          </ul>
+
+        </div>
+      </div>
+
+      <!-- Display the map-->
+      <div id="map"></div>
+    </div>
+    <script></script>
+    <script type="text/javascript" src="knockout-3.2.0.js"></script>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script async defer
+        src=
+        "https://maps.googleapis.com/maps/api/js?key=AIzaSyCef-3L6yOtEzjMBv3UYfQxTo2Jkjp2-wc&libraries=geometry&v=3&callback=initMap">
+    </script>
+    <script src="map.js"></script>
+  </body>
+</html>
