@@ -93,7 +93,7 @@ function initMap() {
     var canonicalUrl = places[i].canonicalUrl;
 
     var showIn = true;
-    var pic = null;
+    var pic = 0;
     if (places[i].photos.count !== 0) {
       pic = places[i].bestPhoto.prefix + "width240"+places[i].bestPhoto.suffix;
     }else {
@@ -117,19 +117,32 @@ function initMap() {
 
     // Create an onclick event to open the large infowindow at each marker.
     infow.push(largeInfowindow);
-
-    marker.addListener('click', function() {
-      InfoWindow(this, largeInfowindow);
-    });
     // Two event listeners - one for mouseover, one for mouseout,
     // to change the colors back and forth.
-    marker.addListener('mouseover', function() {
-      this.setIcon(highlightedIcon);
-    });
-    marker.addListener('mouseout', function() {
-      this.setIcon(defaultIcon);
-    });
+    fclick(marker, largeInfowindow);
+    movclick(marker, highlightedIcon);
+    mouclick(marker, defaultIcon);
+
 }
+
+function fclick(marker){
+  marker.addListener('click', function() {
+    InfoWindow(this, largeInfowindow);
+  });
+}
+
+function movclick(marker){
+  marker.addListener('mouseover', function() {
+    this.setIcon(highlightedIcon);
+  });
+}
+
+function mouclick(marker){
+  marker.addListener('mouseout', function() {
+    this.setIcon(defaultIcon);
+  });
+}
+
 
   showListings();
 
@@ -196,36 +209,41 @@ function InfoWindow(marker, infowindow) {
     });
     var streetViewService = new google.maps.StreetViewService();
     var radius = 50;
-    // In case the status is OK, which means the pano was found, compute the
-    // position of the streetview image, then calculate the heading, then get a
-    // panorama from that and set the options
-    function getStreetView(data, status) {
-      if (status == google.maps.StreetViewStatus.OK && marker.pic === 0) {
-        var nearStreetViewLocation = data.location.latLng;
-        var heading = google.maps.geometry.spherical.computeHeading(
-          nearStreetViewLocation, marker.position);
 
-          infowindow.setContent('<div><a target="_blank" href="' + marker.canonicalUrl +'">' + marker.title + '</a></div><div id="pano"></div>');
-          var panoramaOptions = {
-            position: nearStreetViewLocation,
-            pov: {
-              heading: heading,
-              pitch: 30
-            }
-          };
-        var panorama = new google.maps.StreetViewPanorama(
-          document.getElementById('pano'), panoramaOptions);
-      } else {
-        infowindow.setContent('<div><a target="_blank" href="' + marker.canonicalUrl +'">' + marker.title + '</a></div>' +
-          '<div> <a target="_blank" href="' + marker.canonicalUrl +'"><img src="'+ marker.pic +'" alt=""></a> </div>');
-      }
-    }
+    // Open the infowindow on the correct marker.
+    infowindow.open(map, marker);
     // Use streetview service to get the closest streetview image within
     // 50 meters of the markers position
     streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
-    // Open the infowindow on the correct marker.
-    infowindow.open(map, marker);
   }
+
+  // In case the status is OK, which means the pano was found, compute the
+  // position of the streetview image, then calculate the heading, then get a
+  // panorama from that and set the options
+  function getStreetView(data, status) {
+    if (status == google.maps.StreetViewStatus.OK && marker.pic === 0) {
+      var nearStreetViewLocation = data.location.latLng;
+      var heading = google.maps.geometry.spherical.computeHeading(
+        nearStreetViewLocation, marker.position);
+
+        infowindow.setContent('<div><a target="_blank" href="' + marker.canonicalUrl +'">' + marker.title + '</a></div><div id="pano"></div>');
+        var panoramaOptions = {
+          position: nearStreetViewLocation,
+          pov: {
+            heading: heading,
+            pitch: 30
+          }
+        };
+      var panorama = new google.maps.StreetViewPanorama(
+        document.getElementById('pano'), panoramaOptions);
+    } else {
+      infowindow.setContent('<div><a target="_blank" href="' + marker.canonicalUrl +'">' + marker.title + '</a></div>' +
+        '<div> <a target="_blank" href="' + marker.canonicalUrl +'"><img src="'+ marker.pic +'" alt=""></a> </div>');
+    }
+
+  }
+
+
 }
 
 
