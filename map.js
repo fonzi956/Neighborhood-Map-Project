@@ -1,55 +1,21 @@
-var places = [];
 var infow = [];
-var placesCat = [];
 var listPlaces = [];
-var placesNewCat = ["All"];
-var placesId = [];
 
 //getting the ids APIs near my location using ajax and storing it inside the placesId array
-$.ajax({
-   'async': false,
-   'global': false,
-   'url': "https://api.foursquare.com/v2/venues/search?ll=29.398291,-98.642307&limit=10&client_id=NBWI0IIHZHJ2LLWCO4OHTWWXNEJZR103GBAJJN5STDBCCRK4&client_secret=1RHNOHBM0U0GFMLH1T1BNJSDUWWN4BAMESN1VSMX4RCR3VLA&v=20161016",
-   'dataType': "json",
-   'success': function(data){
-     for ( i = 0; i< 10; i++) {
-      placesId.push(data.response.venues[i].id);
-   }
- }
-});
+function myOtherFunction(callback) {
+    var data;
+    $.ajax({
+        'url': "https://api.foursquare.com/v2/venues/search?ll=29.486772,-98.592188&limit=10&client_id=NBWI0IIHZHJ2LLWCO4OHTWWXNEJZR103GBAJJN5STDBCCRK4&client_secret=1RHNOHBM0U0GFMLH1T1BNJSDUWWN4BAMESN1VSMX4RCR3VLA&v=20161016",
+        'dataType': "json",
+        success: function (resp) {
+            data = resp;
 
-//getting the venues details APIs placesId using ajax again
-for (var i = 0; i < placesId.length; i++) {
-  getdata(i);
+            callback(data);
+
+        },
+        error: function () {callback("Something went wrong");}
+    });
 }
-function getdata(i){
-  $.ajax({
-     'async': false,
-     'global': false,
-     'url': "https://api.foursquare.com/v2/venues/"+ placesId[i] +"?client_id=NBWI0IIHZHJ2LLWCO4OHTWWXNEJZR103GBAJJN5STDBCCRK4&client_secret=1RHNOHBM0U0GFMLH1T1BNJSDUWWN4BAMESN1VSMX4RCR3VLA&v=20161016",
-     'dataType': "json",
-     'success': function(data){
-        var json = data.response.venue;
-        if(typeof json.categories[0] === 'undefined' ) {
-            // does not exist
-        }
-        else {
-            // does exist
-            places.push(json);
-            placesNewCat.push(json.categories[0].name);
-
-        }
-
-     }
-  });
-}
-
-//checking if placesNewCat has any same value to use dropdown
-placesNewCat = placesNewCat.filter(function(item, pos) {
-    return placesNewCat.indexOf(item) == pos;
-});
-
-
 var map;
 
 // Create a new blank array for all the listing markers.
@@ -57,10 +23,9 @@ var markers = [];
 
 
 function initMap() {
-
   // Constructor creates a new map - only center and zoom are required.
   map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 29.398291, lng: -98.642307},
+    center: {lat: 29.486772, lng: -98.592188},
     zoom: 13
   });
 
@@ -68,13 +33,18 @@ function initMap() {
   // Normally we'd have these in a database instead.
   var largeInfowindow = new google.maps.InfoWindow();
 
+  var pinColor = "FE7569";
+  var pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
+  new google.maps.Size(21, 34),
+  new google.maps.Point(0,0),
+  new google.maps.Point(10, 34));
 
   // Style the markers a bit. This will be our listing marker icon.
   var defaultIcon = makeMarkerIcon('0091ff');
 
-  // Create a "highlighted location" marker color for when the user
-  // mouses over the marker.
-  var highlightedIcon = makeMarkerIcon('FFFF24');
+  //marker color is red when clicked
+  var clicIcon = makeMarkerIcon('ff0000');
+
 
   // Create the DIV to hold the control and call the CenterControl()
   // constructor passing in this DIV.
@@ -84,67 +54,77 @@ function initMap() {
   ControlDiv.index = 1;
   map.controls[google.maps.ControlPosition.TOP_LEFT].push(ControlDiv);
 
-  // The following group uses the location array to create an array of markers on initialize.
-  for (var i = 0; i < places.length; i++) {
-    // Get the position from the location array.
-    var position = places[i].location;
-    var title = places[i].name;
-    var cat = places[i].categories[0].name;
-    var canonicalUrl = places[i].canonicalUrl;
+  myOtherFunction(function(d) {
 
-    var showIn = true;
-    var pic = 0;
-    if (places[i].photos.count !== 0) {
-      pic = places[i].bestPhoto.prefix + "width240"+places[i].bestPhoto.suffix;
-    }else {
-      pic = 0;
-    }
+    var j = d.response.venues;
 
-    // Create a marker per location, and put into markers array.
-    var marker = new google.maps.Marker({
-      position: position,
-      title: title,
-      pic: pic,
-      cat: cat,
-      canonicalUrl: canonicalUrl,
-      animation: google.maps.Animation.DROP,
-      icon: defaultIcon,
-      id: i,
-      showIn: showIn
-    });
-    // Push the marker to our array of markers.
-    markers.push(marker);
+    for (var i = 0; i < j.length; i++) {
 
-    // Create an onclick event to open the large infowindow at each marker.
-    infow.push(largeInfowindow);
-    // Two event listeners - one for mouseover, one for mouseout,
-    // to change the colors back and forth.
-    fclick(marker, largeInfowindow);
-    movclick(marker, highlightedIcon);
-    mouclick(marker, defaultIcon);
+      //right here
+      // The following group uses the location array to create an array of markers on initialize.
+
+      // Get the position from the location array.
+      var position = j[i].location;
+      var cat;
+      var canonicalUrl = "https://foursquare.com/v/" + j[i].id
+      var title = j[i].name;
+      var checkinsCount = j[i].stats.checkinsCount;
+      var usersCount = j[i].stats.checkinsCount;
+      var tipCount = j[i].stats.tipCount;
+      var address = j[i].location.address +" " + j[i].location.formattedAddress[1];
+      if(typeof j[i].categories[0] === 'undefined'){
+        cat = "Other";
+      }
+      else {
+        cat = j[i].categories[0].name;
+      }
+      //var canonicalUrl = self.dataid()[i].canonicalUrl;
+
+      var showIn = true;
+
+      // Create a marker per location, and put into markers array.
+      var marker = new google.maps.Marker({
+        position: position,
+        map: map,
+        icon: pinImage,
+        title: title,
+        cat: cat,
+        checkinsCount: checkinsCount,
+        usersCount: usersCount,
+        tipCount: tipCount,
+        address: address,
+        canonicalUrl: canonicalUrl,
+        animation: google.maps.Animation.DROP,
+        icon: defaultIcon,
+        id: i,
+        showIn: showIn
+      });
+
+      // Push the marker to our array of markers.
+      markers.push(marker);
+
+      // Create an onclick event to open the large infowindow at each marker.
+      infow.push(largeInfowindow);
+      // Two event listeners - one for mouseover, one for mouseout,
+      // to change the colors back and forth.
+      fclick(marker, largeInfowindow, clicIcon);
 
 }
 
 function fclick(marker){
   marker.addListener('click', function() {
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setIcon(makeMarkerIcon('0091ff')); // set back to default
+    }
     InfoWindow(this, largeInfowindow);
+    this.setIcon(clicIcon);
   });
 }
 
-function movclick(marker){
-  marker.addListener('mouseover', function() {
-    this.setIcon(highlightedIcon);
-  });
-}
-
-function mouclick(marker){
-  marker.addListener('mouseout', function() {
-    this.setIcon(defaultIcon);
-  });
-}
 
 
   showListings();
+  });
 
 }
 
@@ -177,17 +157,14 @@ function CenterControl(controlDiv, map) {
 
     // Setup the click event listeners: simply set the map to Chicago.
     controlUI.addEventListener('click', function() {
-      //map.setCenter(chicago);
-      //var y = document.getElementById("options-box");
-      if (x.style.left === "362px") {
-          //y.style.display = "block";
+
+      if (x.style.left === "364px") {
           controlText.innerHTML = "Open";
           x.style.left = "0px";
 
       } else {
-          //y.style.display = "none";
           controlText.innerHTML = "Hide";
-          x.style.left = "362px";
+          x.style.left = "364px";
           map.zoom = 8;
       }
     });
@@ -198,20 +175,31 @@ function CenterControl(controlDiv, map) {
 // one infowindow which will open at the marker that is clicked, and populate based
 // on that markers position.
 function InfoWindow(marker, infowindow) {
+
+
   // Check to make sure the infowindow is not already opened on this marker.
   if (infowindow.marker != marker) {
     // Clear the infowindow content to give the streetview time to load.
     infowindow.setContent('');
     infowindow.marker = marker;
+    //infowindow.marker.setIcon('https://www.google.com/mapfiles/marker_green.png');
+
+    //mouclick(marker, 'https://www.google.com/mapfiles/marker_green.png')
     // Make sure the marker property is cleared if the infowindow is closed.
     infowindow.addListener('closeclick', function() {
+      marker.setIcon(makeMarkerIcon('0091ff'));
+      //this.setIcon(makeMarkerIcon('0091ff'));
       infowindow.marker = null;
     });
+
+
+
     var streetViewService = new google.maps.StreetViewService();
     var radius = 50;
 
     // Open the infowindow on the correct marker.
     infowindow.open(map, marker);
+
     // Use streetview service to get the closest streetview image within
     // 50 meters of the markers position
     streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
@@ -221,12 +209,12 @@ function InfoWindow(marker, infowindow) {
   // position of the streetview image, then calculate the heading, then get a
   // panorama from that and set the options
   function getStreetView(data, status) {
-    if (status == google.maps.StreetViewStatus.OK && marker.pic === 0) {
+    if (status == google.maps.StreetViewStatus.OK) {
       var nearStreetViewLocation = data.location.latLng;
       var heading = google.maps.geometry.spherical.computeHeading(
         nearStreetViewLocation, marker.position);
 
-        infowindow.setContent('<div><a target="_blank" href="' + marker.canonicalUrl +'">' + marker.title + '</a></div><div id="pano"></div>');
+        infowindow.setContent('<div><a target="_blank" href="' + marker.canonicalUrl +'">' + marker.title + '</a></div> Check-ins Counts: ' + marker.checkinsCount + ' <br> Users Count: ' + marker.usersCount + ' <br> Tip Count: ' + marker.tipCount + '  <div id="pano"></div>');
         var panoramaOptions = {
           position: nearStreetViewLocation,
           pov: {
@@ -237,8 +225,8 @@ function InfoWindow(marker, infowindow) {
       var panorama = new google.maps.StreetViewPanorama(
         document.getElementById('pano'), panoramaOptions);
     } else {
-      infowindow.setContent('<div><a target="_blank" href="' + marker.canonicalUrl +'">' + marker.title + '</a></div>' +
-        '<div> <a target="_blank" href="' + marker.canonicalUrl +'"><img src="'+ marker.pic +'" alt=""></a> </div>');
+      infowindow.setContent('<div><a target="_blank" href="' + marker.canonicalUrl +'">' + marker.title + '</a>  <br><br> Check-ins Counts: ' + marker.checkinsCount + ' <br> Users Count: ' + marker.usersCount + ' <br> Tip Count: ' + marker.tipCount + '<br><br>'  + marker.address + ' </div>');
+
     }
 
   }
@@ -275,14 +263,12 @@ function showonly(data) {
     var bounds = new google.maps.LatLngBounds();
     if (data != "All" ) {
       if (markers[i].cat == data ) {
-        listPlaces.push(markers[i].title);
         markers[i].setMap(map);
         bounds.extend(markers[i].position);
 
       }
     }
     if (data == "All" ){
-      listPlaces = places.slice();
       showListings();
     }
   }
@@ -305,23 +291,58 @@ function makeMarkerIcon(markerColor) {
 
 //Function for getting the value from array and writes back modified vaule
 var SpacePpl = function(data) {
+    this.id = ko.observable(data.id);
     this.name = ko.observable(data.name);
     this.location = ko.observable(data.location);
-    this.cat = ko.observable(data.categories[0].name);
-    this.showIn = ko.observable(false);
+    if(typeof data.categories[0] === 'undefined' ) {
+      this.cat = ko.observable("Other");
+    }
+    else {
+        // does exist
+        this.cat = ko.observable(data.categories[0].name);
+
+    }
+    this.showIn = ko.observable(true);
 };
 
 //ViewModel defines the data and behavior of your UI
 function ViewModel() {
+
   this.catList = ko.observableArray();
+  this.lis = ko.observableArray(['All']);
 
   var self = this;
-  places.forEach(function(buzz) {
-    self.catList.push(new SpacePpl(buzz));
+
+
+
+  myOtherFunction(function(d) {
+      //processing the data
+
+      var j = d.response.venues;
+
+      j.forEach(function(catItem) {
+
+        self.catList.push(new SpacePpl(catItem));
+
+        if(typeof catItem.categories[0] === 'undefined' ) {
+        }
+        else {
+
+          // does exist
+          if ((self.lis.indexOf(catItem.categories[0].name) < 0)) //duplicates
+              self.lis.push(catItem.categories[0].name);
+        }
+
+      });
+
   });
 
   this.clickbtn = function(data) {
     var a = self.catList.indexOf(data);
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setIcon(makeMarkerIcon('0091ff')); // set back to default
+    }
+    markers[a].setIcon(makeMarkerIcon('ff0000'));
     InfoWindow(markers[a], infow[a]);
   };
 
@@ -339,7 +360,6 @@ function ViewModel() {
       this.catList()[i].showIn(true);
       }
     }
-
       showonly(latest);
 
   }, this);

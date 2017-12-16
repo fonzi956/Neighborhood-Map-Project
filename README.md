@@ -6,6 +6,8 @@ There is a limit when calling for the foursquare api 100,000 responses per day, 
 
 ## Files
 ### What you are getting
+* jquery.min.js
+* knockout-3.2.0.js
 * map.html
 * map.js
 * README.md
