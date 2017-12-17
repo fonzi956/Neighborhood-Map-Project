@@ -1,6 +1,11 @@
 var infow = [];
 var listPlaces = [];
 
+//if there is a error in google maps
+function googleError() {
+  alert("Something went wrong with google maps");
+}
+
 //getting the ids APIs near my location using ajax and storing it inside the placesId array
 function myOtherFunction(callback) {
     var data;
@@ -8,12 +13,30 @@ function myOtherFunction(callback) {
         'url': "https://api.foursquare.com/v2/venues/search?ll=29.486772,-98.592188&limit=10&client_id=NBWI0IIHZHJ2LLWCO4OHTWWXNEJZR103GBAJJN5STDBCCRK4&client_secret=1RHNOHBM0U0GFMLH1T1BNJSDUWWN4BAMESN1VSMX4RCR3VLA&v=20161016",
         'dataType': "json",
         success: function (resp) {
-            data = resp;
-
-            callback(data);
-
+            callback(resp);
         },
-        error: function () {callback("Something went wrong");}
+        error: function (jqXHR, exception) {
+
+          var msg = '';
+          if (jqXHR.status === 0) {
+              msg = 'Not connect.\n Verify Network.';
+          } else if (jqXHR.status == 404) {
+              msg = 'Requested page not found. [404]';
+          } else if (jqXHR.status == 500) {
+              msg = 'Internal Server Error [500].';
+          } else if (exception === 'parsererror') {
+              msg = 'Requested JSON parse failed.';
+          } else if (exception === 'timeout') {
+              msg = 'Time out error.';
+          } else if (exception === 'abort') {
+              msg = 'Ajax request aborted.';
+          } else {
+              msg = 'Uncaught Error.\n' + jqXHR.responseText;
+          }
+          alert("Something went wrong: \n" + msg)
+          console.log(exception +" "+ msg);
+
+        }
     });
 }
 var map;
@@ -117,6 +140,7 @@ function fclick(marker){
       markers[i].setIcon(makeMarkerIcon('0091ff')); // set back to default
     }
     InfoWindow(this, largeInfowindow);
+    map.setCenter(marker.getPosition());
     this.setIcon(clicIcon);
   });
 }
@@ -175,7 +199,6 @@ function CenterControl(controlDiv, map) {
 // one infowindow which will open at the marker that is clicked, and populate based
 // on that markers position.
 function InfoWindow(marker, infowindow) {
-
 
   // Check to make sure the infowindow is not already opened on this marker.
   if (infowindow.marker != marker) {
