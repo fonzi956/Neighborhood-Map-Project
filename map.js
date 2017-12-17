@@ -314,15 +314,15 @@ function makeMarkerIcon(markerColor) {
 
 //Function for getting the value from array and writes back modified vaule
 var SpacePpl = function(data) {
-    this.id = ko.observable(data.id);
-    this.name = ko.observable(data.name);
-    this.location = ko.observable(data.location);
+    this.id = data.id;
+    this.name = data.name;
+    this.location = data.location;
     if(typeof data.categories[0] === 'undefined' ) {
-      this.cat = ko.observable("Other");
+      this.cat = "Other";
     }
     else {
         // does exist
-        this.cat = ko.observable(data.categories[0].name);
+        this.cat = data.categories[0].name;
 
     }
     this.showIn = ko.observable(true);
@@ -376,10 +376,10 @@ function ViewModel() {
       if(latest == "All"){
       this.catList()[i].showIn(true);
     }else {
-      if(this.catList()[i].cat() != latest)
+      if(this.catList()[i].cat != latest)
       this.catList()[i].showIn(false);
 
-      if(this.catList()[i].cat() == latest)
+      if(this.catList()[i].cat == latest)
       this.catList()[i].showIn(true);
       }
     }
