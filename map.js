@@ -33,7 +33,7 @@ function myOtherFunction(callback) {
           } else {
               msg = 'Uncaught Error.\n' + jqXHR.responseText;
           }
-          alert("Something went wrong: \n" + msg)
+          alert("Something went wrong: \n" + msg);
           console.log(exception +" "+ msg);
 
         }
@@ -55,12 +55,6 @@ function initMap() {
   // These are the real estate listings that will be shown to the user.
   // Normally we'd have these in a database instead.
   var largeInfowindow = new google.maps.InfoWindow();
-
-  var pinColor = "FE7569";
-  var pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
-  new google.maps.Size(21, 34),
-  new google.maps.Point(0,0),
-  new google.maps.Point(10, 34));
 
   // Style the markers a bit. This will be our listing marker icon.
   var defaultIcon = makeMarkerIcon('0091ff');
@@ -89,7 +83,7 @@ function initMap() {
       // Get the position from the location array.
       var position = j[i].location;
       var cat;
-      var canonicalUrl = "https://foursquare.com/v/" + j[i].id
+      var canonicalUrl = "https://foursquare.com/v/" + j[i].id;
       var title = j[i].name;
       var checkinsCount = j[i].stats.checkinsCount;
       var usersCount = j[i].stats.checkinsCount;
@@ -109,7 +103,6 @@ function initMap() {
       var marker = new google.maps.Marker({
         position: position,
         map: map,
-        icon: pinImage,
         title: title,
         cat: cat,
         checkinsCount: checkinsCount,
