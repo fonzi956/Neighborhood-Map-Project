@@ -49,6 +49,7 @@ function initMap() {
   // Constructor creates a new map - only center and zoom are required.
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 29.486772, lng: -98.592188},
+    mapTypeControl: false,
     zoom: 13
   });
 
@@ -175,13 +176,13 @@ function CenterControl(controlDiv, map) {
     // Setup the click event listeners: simply set the map to Chicago.
     controlUI.addEventListener('click', function() {
 
-      if (x.style.left === "364px") {
+      if (x.style.left === "250px") {
           controlText.innerHTML = "Open";
           x.style.left = "0px";
 
       } else {
           controlText.innerHTML = "Hide";
-          x.style.left = "364px";
+          x.style.left = "250px";
           map.zoom = 8;
       }
     });
