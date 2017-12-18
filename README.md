@@ -17,7 +17,7 @@ There is a limit when calling for the foursquare api 100,000 responses per day, 
 * Any Web browser
 
 ## Steps
-* Run the map.html with your favorite web browser
+* Run the index.html with your favorite web browser
 * It display the application of my neighborhood
 
 ## Description of the application
