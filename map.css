@@ -37,7 +37,9 @@ hr {
   position: absolute;
   right: 0px;
 }
-
+select, option { 
+  width: 249px; 
+}
 #options-box {
   float: left;
   background: #fff;
@@ -46,7 +48,7 @@ hr {
   line-height: 35px;
   padding: 10px 10px 30px 10px;
   text-align: left;
-  width: 340px;
+  width: 250px;
 }
 
 #pano {
